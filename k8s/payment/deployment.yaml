@@ -34,8 +34,6 @@ spec:
               value: "https://api.yookassa.ru/v3"
             - name: RETURN_URL
               value: "https://socoldworld.com"
-
-#           Health checks
           livenessProbe:
             httpGet:
               path: /health
@@ -44,7 +42,6 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
-
           readinessProbe:
             httpGet:
               path: /health
@@ -54,7 +51,6 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
 ---
-# Service
 apiVersion: v1
 kind: Service
 metadata:
