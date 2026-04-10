@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: order-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8095
+
+          env:
+            - name: HTTP_PORT
+              value: "8095"
+            - name: PAYMENT_SERVICE_URL
+              value: "http://payment-service:8094"
+            - name: PAYMENT_SERVICE_CREATE_PAYMENT_ENDPOINT
+              value: "/api/payments"
+            - name: DB_PASSWORD
+              value: "jama"
+
+#            - name: SHOP_SERVICE_URL
+#              value: "http://shop-service:8093"
+#            - name: SHOP_SERVICE_GET_PRODUCT_ENDPOINT
+#              value: "/api/shop/product"
+#
+#            - name: USER_SERVICE_URL
+#              value: "http://user-service:8092"
+#            - name: USER_SERVICE_GET_USER_ENDPOINT
+#              value: "/api/profile"
+
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8095
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8095
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order-service
+  ports:
+    - protocol: TCP
+      port: 8095
+      targetPort: 8095
+  type: ClusterIP

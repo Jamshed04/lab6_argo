@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-postgres
+  template:
+    metadata:
+      labels:
+        app: payment-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+
+          envFrom:
+            - secretRef:
+                name: payment-postgres-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-postgres
+spec:
+  selector:
+    app: payment-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
